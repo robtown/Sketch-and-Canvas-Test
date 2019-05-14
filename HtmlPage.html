@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+     <script src="scripts/kinetic-v4.0.3.js"></script>
+    <script type='text/javascript'>//<![CDATA[ 
+        window.onload = function () {
+            function writeMessage(messageLayer, message) {
+                var context = messageLayer.getContext();
+                messageLayer.clear();
+                context.font = '18pt Calibri';
+                context.fillStyle = 'black';
+                context.fillText(message, 10, 25);
+            }
+
+            var stage = new Kinetic.Stage({
+                container: 'cloudDiv',
+                width: 578,
+                height: 200
+            });
+            var shapesLayer = new Kinetic.Layer();
+            var messageLayer = new Kinetic.Layer();
+
+            var rect = new Kinetic.Rect({
+                x: 0,
+                y: 0,
+                width: stage.getWidth(),
+                height: stage.getHeight(),
+                stroke: 0
+            });
+            var rect2 = new Kinetic.Rect({
+                x: 0,
+                y: 0,
+                width: 120,
+                height: 60,
+                stroke: 3
+            });
+
+            rect.on('mousemove', function () {
+                var mousePos = stage.getMousePosition();
+                var x = mousePos.x;
+                var y = mousePos.y;
+                rect2.attrs.y = y;
+                rect2.attrs.x = x;
+                shapesLayer.draw();
+                writeMessage(messageLayer, 'x: ' + x + ', y: ' + y);
+            });
+
+
+            stage.getContainer().addEventListener('mouseout', function (evt) {
+                writeMessage(messageLayer, '');
+            });
+
+            shapesLayer.add(rect);
+            shapesLayer.add(rect2);
+
+            stage.add(shapesLayer);
+            stage.add(messageLayer);
+        }//]]>  
+</script>
+<body>
+    <div id="cloudDiv">
+
+
+    </div>
+
+</body>
+</html>

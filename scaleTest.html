@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+
+ 
+    <script src="scripts/jquery-1.11.0.min.js"></script>
+    <script src="scripts/kinetic-v5.1.0.min.js"></script>
+   
+    <script>
+        function getDistance(touch1, touch2) {
+            var x1 = touch1.x;
+            var x2 = touch2.x;
+            var y1 = touch1.y;
+            var y2 = touch2.y;
+
+            return Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+        }
+        function getDistances(touch1, touch2) {
+            var newPos = new Object();
+            var x1 = touch1.x;
+            var x2 = touch2.x;
+            var y1 = touch1.y;
+            var y2 = touch2.y;
+
+            newPos.x = Math.sqrt((x2 - x1) * (x2 - x1));
+            newPos.y = Math.sqrt((y2 - y1) * (y2 - y1));
+
+            return newPos;
+        }
+        window.onload = function () {
+            var stage = new Kinetic.Stage({
+                container:"container",
+                width: 578,
+                
+                height: 200
+            });
+            var drawLayerRect = new Kinetic.Rect({
+                width: stage.getWidth(),
+                height: stage.getHeight()
+
+            });
+            var drawlayer = new Kinetic.Layer();
+            var layer = new Kinetic.Layer();
+            var targetShape = undefined;
+            var mDown = false;
+            var click1, click2;
+            var triangle = new Kinetic.RegularPolygon({
+                x: 190,
+                y: 120,
+                sides: 3,
+                radius: 80,
+                fill: "#00D2FF",
+                stroke: "black",
+                strokeWidth: 4,
+                // custom property
+                startScale: .0025
+            });
+
+            triangle.on("mousedown", function () {
+                targetShape = this;
+                this.moveToTop();
+            });
+
+            layer.add(triangle);
+            drawlayer.add(drawLayerRect);
+
+            var circle = new Kinetic.Circle({
+                x: 380,
+                y: stage.height / 2,
+                radius: 70,
+                fill: "red",
+                stroke: "black",
+                strokeWidth: 4,
+                // custom property
+                startScale: 1
+                
+            });
+
+            circle.on("mousedown", function () {
+                click1 = stage.getMousePosition();
+                mDown = true;
+               // alert(mDown);
+                targetShape = this;
+                this.moveToTop();
+            });
+            circle.on("mouseup", function () {
+                mDown = false;
+                if (targetShape) {
+                    targetShape.startDistance = undefined;
+                    targetShape.startScale = targetShape.scale.x;
+                    targetShape = undefined;
+                }
+            });
+            circle.on("mousemove", function (evt) {
+                
+               
+               // var touch1 = evt.touches[0];
+               // var touch2 = evt.touches[1];
+               
+                if (mDown) {
+                    var distance = getDistance(click1, stage.getMousePosition());
+                   // alert(click1.clientX);
+                    if (targetShape) {
+                        //alert(targetShape.startDistance);
+                        if (targetShape.startDistance === undefined) {
+                            targetShape.startDistance = distance;//getDistance(touch1, touch2);
+                        }
+                        else {
+                            //alert("yes");
+                            var dist = distance;//getDistance(touch1, touch2);
+                            var scale = (dist / targetShape.startDistance) * targetShape.startScale;
+                            targetShape.setScale(scale);
+                            layer.draw();
+                            
+                        }
+                        //
+                    }
+                }
+            });
+            stage.on("mousedown", function () {
+                var mPos = stage.getMousePosition();
+                click1 = mPos;
+                mDown = true;
+                //var rects = layer.get('#newRect1');
+                var newRect = new Kinetic.Rect({
+                x: mPos.x,
+                y: mPos.y,
+                width: 15,
+                height:5,
+               // fill: "red",
+                //stroke: "black",
+                strokeWidth: 0,
+                // custom property
+                startScale: .3,
+                    id:'newRect' 
+                });
+                layer.add(newRect);
+                layer.draw();
+            });
+            stage.on("mousemove", function () {
+                if (mDown) {
+                    var distances = getDistances(click1, stage.getMousePosition());
+                    var distance = getDistance(click1, stage.getMousePosition());
+                    var rect = layer.get('#newRect');
+                    if (rect[0]) {
+                        //alert(targetShape.startDistance);
+                        if (rect[0].attrs.startDistance === undefined) {
+                            rect[0].attrs.startDistance = distance;//getDistance(touch1, touch2);
+                        }
+                        else {
+                            //alert("yes");
+                            dist = distance;
+                            var distX = distances.x;//getDistance(touch1, touch2);
+                            var distY = distances.y;
+                            var scale = (dist / rect[0].attrs.startDistance) * rect[0].attrs.startScale;
+                            
+                            rect[0].setScale(scale);
+                            rect[0].setAttr("strokeWidth",.25);
+                            layer.draw();
+
+                        }
+
+                    }
+                   // alert(rect[0].attrs.x);
+                }
+            });
+            stage.on("mouseout", function () {
+                
+
+            });
+            stage.on("mouseup", function () {
+                mDown = false;
+                
+            });
+            stage.add(drawlayer);
+            layer.add(circle);
+            stage.add(layer);
+            
+        };
+    </script>
+</head>
+<body onmousedown="return false;">
+    <div id="container">
+    </div>
+</body>
+    </html>
